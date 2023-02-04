@@ -33,8 +33,11 @@ const {
 // < 16
 
 function exponencial(exp) {
-
+    return function sqrt(base){
+        return Math.pow(base, exp)
+    }
 }
+
 
 // ----- Recursión -----
 
@@ -70,7 +73,21 @@ function exponencial(exp) {
 // Aclaraciones: el segundo parametro que recibe la funcion ('direccion') puede ser pasado vacio (null)
 
 function direcciones(laberinto) {
+    let res = ''
 
+    if (laberinto) {        
+        Object.entries(laberinto).forEach(([key, value]) => {
+            if (value !== 'pared') {
+                if (value === 'destino') {
+                    res = res.concat(key)
+                }
+                if (typeof value === 'object' && !Object.values(value).every(e => e ==='pared')) {
+                    res = res.concat(key).concat(direcciones(value))
+                }
+            }
+        });    
+    } 
+    return res  
 }
 
 
@@ -88,7 +105,20 @@ function direcciones(laberinto) {
 // deepEqualArrays([0,1,[[0,1,2],1,2]], [0,1,[[0,1,2],1,2]]) => true
 
 function deepEqualArrays(arr1, arr2) {
-
+    if (arr1.length === arr2.length) {
+        let res
+        for (let i = 0; i < arr1.length; i++) {
+            if (Array.isArray(arr1[i]) && Array.isArray(arr2[i])) {
+                res = deepEqualArrays(arr1[i], arr2[i])
+            } else{
+                res = arr1[i] === arr2[i]
+            }
+        }
+        
+        return res
+    }else{
+        return false
+    }
 }
 
 
@@ -139,7 +169,21 @@ OrderedLinkedList.prototype.print = function(){
 // < 'head --> 5 --> 3 --> 1 --> null'
 //               4
 OrderedLinkedList.prototype.add = function(val){
-    
+    let current = this.head
+    let node = new Node(val)
+
+    if (!this.head || current.value <= node.value) {
+        node.next = current;
+        return this.head = node;
+
+    } else {
+        while (current.next != null && current.next.value > node.value){
+            current = current.next;
+        }
+        
+        node.next = current.next;
+        return current.next = node;
+    }      
 }
 
 
@@ -159,9 +203,17 @@ OrderedLinkedList.prototype.add = function(val){
 // < null
 
 OrderedLinkedList.prototype.removeHigher = function(){
-    
-}
+    if (!this.head) {
+        return null
+    } else {
+        let higher = this.head
+        let replace = this.head.next
 
+        this.head = replace
+
+        return higher.value
+    }  
+}
 
 // EJERCICIO 6
 // Crea el metodo 'removeLower' que deve devolver el valor mas bajo de la linked list 
@@ -179,7 +231,27 @@ OrderedLinkedList.prototype.removeHigher = function(){
 // < null
 
 OrderedLinkedList.prototype.removeLower = function(){
-    
+    if (!this.head) {
+        return null
+    } else {
+        let current = this.head
+
+        if (!current.next) {
+            this.head = null
+            return current.value
+
+        } else {
+            let prev
+
+            while (current.next) {
+                prev = current
+                current = current.next;
+            }
+            
+            prev.next = null
+            return current.value            
+        }
+    }     
 }
 
 
@@ -212,7 +284,11 @@ OrderedLinkedList.prototype.removeLower = function(){
 // < ["2-1", "1-1", "1-2", "2-2"];
 
 function multiCallbacks(cbs1, cbs2){
-    
+    let queue= cbs1.concat(cbs2).sort((a, b) => a.time - b.time)
+
+    let res = queue.map(e => e.cb())
+
+    return res    
 }
 
 
@@ -231,7 +307,15 @@ function multiCallbacks(cbs1, cbs2){
 // resultado:[5,8,9,32,64]
 
 BinarySearchTree.prototype.toArray = function() {
+    let arr = []
+
+    if (this.value) arr.push(this.value)
     
+    if (this.right) arr.push(this.right.toArray())
+ 
+    if (this.left) arr.push(this.left.toArray())
+ 
+    return arr.flat(Infinity).sort((a, b) => a - b )    
 }
 
 
@@ -250,7 +334,18 @@ BinarySearchTree.prototype.toArray = function() {
 // informarse sobre algoritmos, leerlos de un pseudocodigo e implemnterlos alcanzara
 
 function primalityTest(n) {
-    
+    if (n == 2 || n == 3){
+        return true;
+    }
+    if (n <= 1 || n % 2 == 0 || n % 3 == 0){
+        return false;  
+    }
+    for (let i = 5; i * i <= n ; i+=6){
+        if (n % i == 0 || n % (i + 2) == 0)
+        return false;        
+    }
+
+    return true;    
 }
 
 
@@ -260,7 +355,20 @@ function primalityTest(n) {
 // https://en.wikipedia.org/wiki/Quicksort
 
 function quickSort(array) {
+    if (array.length <= 1) {
+      return array;
+    }
+
+    let pivot = array[0];
     
+    let left = []; 
+    let right = [];
+
+    for (let i = 1; i < array.length; i++) {
+      array[i] > pivot ? left.push(array[i]) : right.push(array[i]);
+    }
+
+    return quickSort(left).concat(pivot, quickSort(right)); 
 }
 // QuickSort ya lo conocen solo que este 
 // ordena de mayor a menor
@@ -283,7 +391,17 @@ function quickSort(array) {
 // < 32859
 
 function reverse(num){
-    
+    let result = 0;
+
+    while(num>0){
+        rightmost = num % 10;
+        
+        result = result * 10 + rightmost;
+        
+        num = Math.floor(num/10);
+    }
+
+    return result    
 }
 // la grandiosa resolucion de Wilson!!!
 // declaran una variable donde 
